@@ -26,7 +26,7 @@ export function mountStreetLayer(map,onUnavailable){
     streets.jumpTo({center:[center.lng,center.lat],zoom:map.getZoom()-1});
   };
   const resize=()=>{streets?.resize();sync();};
-  const unavailable=()=>{if(!closed)onUnavailable(true);};
+  const unavailable=()=>{if(!closed){container.style.visibility='hidden';onUnavailable(true);}};
   const timeout=setTimeout(unavailable,9000);
   async function start(){
     try{
@@ -37,7 +37,7 @@ export function mountStreetLayer(map,onUnavailable){
         zoom:map.getZoom()-1,interactive:false,attributionControl:false,trackResize:false,fadeDuration:0});
       streets.on('error',unavailable);
       streets.on('idle',()=>{if(!closed && streets.areTilesLoaded() && streets.queryRenderedFeatures().length){
-        clearTimeout(timeout);onUnavailable(false);
+        clearTimeout(timeout);container.style.visibility='visible';onUnavailable(false);
       }});
       map.on('move zoom',sync).on('resize',resize);
       resize();

@@ -14,6 +14,6 @@ export default function CampusMap({ trip, position }) {
   useEffect(()=>{if(position) handle.current?.position(position);},[position,trip]);
   return <section className="map-panel" aria-label="DTU campus map">
     <div className="map" ref={container} aria-label="Interactive map" />
-    {(trip?.demo || tileError) && <p className="map-message" role="status">{trip?.demo?'Demo route diagram':trip?'Street map unavailable · showing route geometry':'Street map unavailable · showing DTU demo paths'}</p>}
+    {(trip?.demo || tileError) && <p className="map-message" role="status">{trip?.demo?(tileError?'Street map unavailable · demo route diagram':'Demo route · seeded observations'):trip?'Street map unavailable · showing route geometry':'Street map unavailable · showing DTU demo paths'}</p>}
   </section>;
 }

@@ -25,8 +25,8 @@ export function mountCampusMap(container, onTileError, trip) {
     onTileError(value);
     if(!trip){if(value)guide.addTo(map);else guide.remove();}
   };
-  if(!trip?.demo)map.attributionControl.addAttribution(streetCredit);
-  const stopStreets=trip?.demo?()=>{}:mountStreetLayer(map,setUnavailable);
+  map.attributionControl.addAttribution(streetCredit);
+  const stopStreets=mountStreetLayer(map,setUnavailable);
 
   let bounds;
   if (trip) {

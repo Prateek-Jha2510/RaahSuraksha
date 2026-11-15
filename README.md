@@ -29,7 +29,7 @@ For a production build, use `npm.cmd run build` and then `npm.cmd run preview`. 
 | Market closing | One route's activity changes after the arcade shuts |
 | Sports ground exit | The quickest route can have no mapped evidence |
 
-These are fictional demo walks with seeded observations and clearly labelled example comments. We keep practice reviews separate from live reviews. The examples work without API keys; the labelled demo route diagrams are bundled locally. Live street detail uses OpenFreeMap vector maps and the MapLibre renderer, which require internet access. If the street layer is unavailable, we keep the route and endpoints visible.
+These are fictional demo walks with seeded observations and clearly labelled example comments. We keep practice reviews separate from live reviews. The examples work without API keys; demo routes appear over live street maps when available. Their geometry, labels and seeded observations are bundled locally for offline fallback. Live street detail uses OpenFreeMap vector maps and the MapLibre renderer, which require internet access. If the street layer is unavailable, we keep the route and endpoints visible.
 
 ## What goes into the score
 
