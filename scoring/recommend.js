@@ -5,7 +5,7 @@ export async function recommend(routes, safer, limit) {
   let index;
   try {
     index=await new Promise((resolve,reject)=>{
-      const child=execFile(path.resolve('build',process.platform==='win32'?'scorer.exe':'scorer'),['choose'],{timeout:3000,windowsHide:true},(err,out)=>err?reject(err):resolve(Number(out.trim())));
+      const child=execFile(process.env.RAAH_SCORER || path.resolve('build',process.platform==='win32'?'scorer.exe':'scorer'),['choose'],{timeout:3000,windowsHide:true},(err,out)=>err?reject(err):resolve(Number(out.trim())));
       child.stdin.on('error',()=>{}); child.stdin.end(input);
     });
     if(!routes[index]) throw Error('Invalid choice');

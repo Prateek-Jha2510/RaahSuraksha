@@ -2,6 +2,14 @@
 
 We built Raah Suraksha around a question we can actually test on campus: if the walk back from the library takes four minutes longer, what do we know about those extra minutes? Our app lays two walks side by side and shows the mapped lighting, activity, opening hours and street feedback behind each route's score. When our data runs out, the coverage figure shows where our confidence runs out too.
 
+## Android phones
+
+Download **Raah-Suraksha.apk** from the [Android releases](https://github.com/Prateek-Jha2510/RaahSuraksha/releases), open it on an Android 8.0+ phone and follow the installer prompts. The app includes its own routing backend and C++ scorer. The four practice walks work offline. Live addresses, routing providers and street-map detail need internet. Reviews and the trusted contact stay on the phone. Location is requested when a live trip needs it. A police call opens the dialler, and you confirm a trusted-contact message in your SMS app.
+
+For the presentation, open **Demo walks**, choose **Library walk**, then tap **Open demo walk → Start trip → SOS settings**. The demo keeps real calls and SMS disabled.
+
+We build and test the APK from the Android APK workflow. Each default hackathon build uses a fresh signing key. Keep the same download across devices. Installing a later build signed with another key requires uninstalling the earlier build, which clears local data. For repeatable signing on your own machine, set RAAH_ANDROID_KEYSTORE to your keystore path (alias raah) and RAAH_ANDROID_PASSWORD before running bash android/build.sh on Linux with the Android SDK and NDK.
+
 ## Run our build
 
 On Windows, extract the ZIP and double-click **Start-Raah-Suraksha.cmd**. Keep the terminal open. The launcher installs the Node dependencies, compiles our C++ engine and opens the app. We use Node.js 22.12+ and a C++17 compiler. The launcher detects MSYS2 UCRT64 at `C:/msys64/ucrt64/bin/g++.exe`; otherwise put g++ on PATH or set CXX to its executable.

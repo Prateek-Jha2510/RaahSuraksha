@@ -38,7 +38,7 @@ export function score(route, observations, minute) {
   const header=[w.lighting,w.openPlaces,w.isolation,w.ratings,w.nightLightingMultiplier,w.nightActivityMultiplier,w.nightRiskMultiplier,Number(night),route.points.length,signals.length];
   const input=[header,...route.points,...signals].map(row=>row.join(' ')).join('\n');
   return new Promise((resolve,reject)=>{
-    const child=execFile(path.resolve('build',process.platform==='win32'?'scorer.exe':'scorer'),[],{timeout:5000,windowsHide:true},(err,out)=>{
+    const child=execFile(process.env.RAAH_SCORER || path.resolve('build',process.platform==='win32'?'scorer.exe':'scorer'),[],{timeout:5000,windowsHide:true},(err,out)=>{
       if(err) return reject(err);
       const [summary,segments='',candidate='']=out.trim().split(/\r?\n/);
       const [raw,level,coverage,...lengths]=summary.split(/\s+/).map(Number);
