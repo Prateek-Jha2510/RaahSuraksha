@@ -1,0 +1,14 @@
+import {spawnSync} from 'node:child_process';
+import {mkdirSync,existsSync} from 'node:fs';
+import path from 'node:path';
+const windows = process.platform === 'win32';
+const local = 'C:/msys64/ucrt64/bin/g++.exe';
+const compiler = process.env.CXX || (windows && existsSync(local) ? local : 'g++');
+mkdirSync('build',{recursive:true});
+const args = ['-std=c++17','-O2','-Wall','-Wextra','scoring/scorer.cpp','-o', windows ? 'build/scorer.exe' : 'build/scorer'];
+const env = {...process.env};
+if (path.isAbsolute(compiler)) env.PATH = path.dirname(compiler) + path.delimiter + env.PATH;
+if (windows) args.push('-static');
+const result = spawnSync(compiler,args,{stdio:'inherit',env});
+if (result.error) console.error('Install a C++17 compiler or set CXX to g++.');
+process.exitCode = result.status ?? 1;
