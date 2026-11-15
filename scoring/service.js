@@ -80,7 +80,8 @@ async function loadArea(bounds, endpoint,fetcher) {
   return rows;
 }
 export async function assess(routes,time,{demo=false,demoObservations=seed.observations,endpoint='https://overpass-api.de/api/interpreter',fetcher=fetch}={}) {
-  const clock=time || new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
+  // IST uses UTC+05:30 year-round, including on mobile runtimes without ICU.
+  const clock=time || new Date(Date.now() + 330 * 60000).toISOString().slice(11,16);
   const [h,m]=clock.split(':').map(Number);
   let observations=demoObservations;
   if(!demo){
