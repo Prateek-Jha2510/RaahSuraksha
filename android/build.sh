@@ -11,8 +11,7 @@ out=$(mktemp -d)
 trap 'rm -rf "$out"' EXIT
 mkdir -p "$out"/{classes,dex,package,assets/app} build/android
 npm ci
-npm run build
-cp -r dist "$out/assets/app/web"
+node_modules/.bin/vite build --target chrome74 --outDir "$out/assets/app/web"
 cp android/server.cjs "$out/assets/app/"
 node_modules/.bin/esbuild routing-api.js --platform=node --target=node18.20 --format=cjs --bundle --outfile="$out/assets/app/services.cjs"
 curl --fail --location --retry 3 -o "$out/node.zip" https://github.com/nodejs-mobile/nodejs-mobile/releases/download/v18.20.4/nodejs-mobile-v18.20.4-android.zip

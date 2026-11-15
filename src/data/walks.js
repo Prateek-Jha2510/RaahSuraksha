@@ -4,7 +4,7 @@ const library=getDemoTrip('gate','library','faster');
 
 function walk(id,title,description,start,end,paths,observations,notes){
   const routes=paths.map(([name,minutes,points])=>({id:name,label:name,minutes,points}));
-  return {id,title,description,from:{name:start,point:routes[0].points[0]},to:{name:end,point:routes[0].points.at(-1)},routes,observations,notes};
+  return {id,title,description,from:{name:start,point:routes[0].points[0]},to:{name:end,point:routes[0].points[routes[0].points.length - 1]},routes,observations,notes};
 }
 const h=[28.7544,77.1117], j=[28.7568,77.1142];
 const m=[28.7184,77.1082], n=[28.7212,77.1063];

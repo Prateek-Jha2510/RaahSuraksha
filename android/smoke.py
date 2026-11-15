@@ -25,6 +25,7 @@ def wait_for(label, tap=False):
         if tap:
             adb("shell", "input", "swipe", "460", "1200", "460", "450", "350")
         time.sleep(0.4)
+    print(adb("logcat", "-d", "-t", "600", "chromium:I", "AndroidRuntime:E", "RaahSuraksha:E", "*:S")[-8000:])
     raise AssertionError((label, last))
 
 adb("install", "-r", "build/android/Raah-Suraksha.apk")

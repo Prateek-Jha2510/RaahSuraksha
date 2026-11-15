@@ -17,7 +17,7 @@ const faster = {
 
 export function getDemoTrip(origin, destination, preference) {
   const from = origin === 'my-location' ? 'gate' : origin;
-  if (!Object.hasOwn(places, from) || !Object.hasOwn(places, destination) || from === destination) return null;
+  if (!Object.prototype.hasOwnProperty.call(places, from) || !Object.prototype.hasOwnProperty.call(places, destination) || from === destination) return null;
   const routes = [safer, faster].map(route => ({
     ...route, points: from === 'gate' ? route.points : [...route.points].reverse()
   }));
