@@ -1,5 +1,6 @@
 import React,{useEffect,useRef,useState} from 'react';
 import CampusMap from './CampusMap.jsx';
+import {nearestListedStation} from '../data/police.js';
 
 function readSettings(){try{return JSON.parse(localStorage.getItem('raah.sos'))||{};}catch{return {};}}
 function normalize(s){return s.toLowerCase().normalize('NFKC').replace(/[^\p{L}\p{M}\p{N}]+/gu,' ').trim();}
@@ -14,12 +15,14 @@ export default function Trip({trip,onEnd,t,audioRef}){
   const [deadline,setDeadline]=useState(0),[seconds,setSeconds]=useState(5),[alert,setAlert]=useState(false),[audioMsg,setAudioMsg]=useState('');
   const passed=useRef(false),tone=useRef(null),latest=useRef(null);
   const candidate=trip.selected.feedback,Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const recentFix=gps==='Location updated' && fix?.accuracy<=250 && Date.now()-fix.time<120000;
+  const station=nearestListedStation(trip.demo?trip.from.point:recentFix?fix.point:null);
   function mute(){if(tone.current){try{tone.current.stop();}catch{}tone.current=null;}}
   useEffect(()=>()=>mute(),[]);
   useEffect(()=>{
     if(trip.demo || !navigator.geolocation){setGps(trip.demo?'Simulated walk':'Location unavailable');return;}
     const id=navigator.geolocation.watchPosition(p=>{
-      const point=[p.coords.latitude,p.coords.longitude],value={point,time:p.timestamp};
+      const point=[p.coords.latitude,p.coords.longitude],value={point,time:p.timestamp,accuracy:p.coords.accuracy};
       latest.current=value;setFix(value);setGps('Location updated');
       if(candidate && Date.now()-p.timestamp<120000 && p.coords.accuracy<=65 &&
         111195*Math.hypot(point[0]-candidate.point[0],(point[1]-candidate.point[1])*Math.cos(point[0]*Math.PI/180))<65)passed.current=true;
@@ -62,12 +65,18 @@ export default function Trip({trip,onEnd,t,audioRef}){
     <p className="hint">Keep the trip screen open. Location and microphone require permission. Confirm the prepared SMS in your messaging app.</p>
     {!sheet&&!deadline&&!alert&&<button className="sos" onClick={trigger}>SOS</button>}
     {sheet&&<div className="overlay"><form className="panel" onSubmit={e=>{e.preventDefault();const c={phone:phone.trim(),phrase:normalize(phrase)?phrase.trim():''};setCfg(c);try{localStorage.setItem('raah.sos',JSON.stringify(c));}catch{}setSheet(false);}}>
-      <h2>SOS settings</h2><label>Trusted contact number<input type="tel" pattern="[+]?[0-9]{7,15}" value={phone} placeholder="+91…" onChange={e=>setPhone(e.target.value)}/></label>
+      <h2>SOS settings</h2>
+      <label>Police service number<input type="tel" readOnly value={station?.phone||'112'}/></label>
+      <p className="hint">{station?station.name+' · nearest listed station to '+(trip.demo?'the demo start.':'your location.'):'112 · India emergency response, including police.'}</p>
+      <label>Trusted contact number<input type="tel" pattern="[+]?[0-9]{7,15}" value={phone} placeholder="Optional" onChange={e=>setPhone(e.target.value)}/></label>
       <label>Trigger phrase<input value={phrase} maxLength={100} placeholder="Mujhe bachao" onChange={e=>setPhrase(e.target.value)}/></label><p>Saved on this device.</p>
       <div className="actions"><button className="secondary" type="button" onClick={()=>{setPhone(cfg.phone||'');setPhrase(cfg.phrase||'');setSheet(false);}}>Cancel</button><button className="primary">Save</button></div></form></div>}
     {!!deadline&&<div className="overlay"><div className="panel" role="alertdialog" aria-label="SOS countdown"><h2>SOS in {seconds}</h2><button autoFocus className="primary submit" onClick={()=>setDeadline(0)}>{t('Cancel SOS','SOS रद्द करें')}</button></div></div>}
     {alert&&<div className="overlay"><div className="panel" role="alertdialog" aria-label="SOS actions"><h2>{trip.demo?'Practice SOS':'SOS actions'}</h2><p>{trip.demo?'No call or message was started.':cfg.phone?'Confirm the prepared message in your SMS app.':'No trusted contact is set. Call for help below.'}</p>
-      {!trip.demo&&<div className="links">{cfg.phone&&<a href={sms(cfg.phone,fix)}>Open prepared SMS</a>}<a href="tel:112">Call 112 · Emergency</a><a href="tel:1091">Call 1091 · Delhi women's helpline</a></div>}
+      {!trip.demo&&<div className="links"><a href="tel:112">Call 112 · Emergency</a>
+        {station&&<a href={'tel:'+station.phone}>Call {station.name} · {station.phone}</a>}
+        {cfg.phone&&<a href={sms(cfg.phone,fix)}>Text trusted contact · {cfg.phone}</a>}
+        <a href="tel:1091">Call 1091 · Delhi women's helpline</a></div>}
       {audioMsg&&<p>{audioMsg}</p>}<button autoFocus className="primary submit" onClick={()=>{mute();setAlert(false);setAudioMsg('');}}>Stop alarm and close</button></div></div>}
   </div></section></div>;
 }
