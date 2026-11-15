@@ -53,3 +53,7 @@ textarea {font:inherit;box-sizing:border-box;display:block;width:100%;border-rad
 .address-options li {padding:10px;min-height:44px;cursor:pointer;border-bottom:1px solid var(--border);}
 .address-options li:last-child {border:0;}
 .address-options li:hover,.address-options li[aria-selected=true] {background:var(--wash);color:var(--accent);}
+
+.street-background { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+.street-background .maplibregl-canvas { position:absolute; top:0; left:0; }
+[data-theme="dark"] .street-background { filter:invert(1) hue-rotate(170deg) saturate(.58) brightness(.85); }

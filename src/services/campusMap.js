@@ -1,14 +1,32 @@
 import L from 'leaflet';
 import { campus } from '../data/campus.js';
-import { initialZoom, tileOptions, tileUrl } from '../config/map.js';
+import { initialZoom, streetCredit } from '../config/map.js';
+
+import {mountStreetLayer} from './streetLayer.js';
+import {places,getDemoTrip} from '../data/demoRoutes.js';
 
 export function mountCampusMap(container, onTileError, trip) {
-  const map = L.map(container, { zoomControl: false }).setView(campus.center, initialZoom);
+  const map = L.map(container, { zoomControl: false, minZoom:2, maxZoom:19, zoomAnimation:false }).setView(campus.center, initialZoom);
   L.control.zoom({ position: 'topright' }).addTo(map);
-  const tiles = L.tileLayer(tileUrl, tileOptions);
-  tiles.on('tileerror', () => onTileError(true));
-  tiles.on('loading', () => onTileError(false));
-  tiles.addTo(map);
+  const guide=L.layerGroup();
+  function endpoint(place){
+    const label=document.createElement('span');
+    label.textContent=place.name;
+    return L.circleMarker(place.point,{radius:6,color:'#164d3d',weight:3,fillColor:'#fff',fillOpacity:1})
+      .bindTooltip(label,{permanent:true,direction:'top',offset:[0,-5]});
+  }
+  if(!trip){
+    const preview=getDemoTrip('gate','library','faster');
+    preview.routes.forEach(r=>L.polyline(r.points,{color:'#687885',weight:4,dashArray:'6 6'}).addTo(guide));
+    Object.values(places).forEach(place=>endpoint(place).addTo(guide));
+    guide.addTo(map);
+  }
+  const setUnavailable=value=>{
+    onTileError(value);
+    if(!trip){if(value)guide.addTo(map);else guide.remove();}
+  };
+  if(!trip?.demo)map.attributionControl.addAttribution(streetCredit);
+  const stopStreets=trip?.demo?()=>{}:mountStreetLayer(map,setUnavailable);
 
   let bounds;
   if (trip) {
@@ -21,11 +39,7 @@ export function mountCampusMap(container, onTileError, trip) {
       }).addTo(map);
     }
     for (const place of [trip.from, trip.to]) {
-      const tooltip = document.createElement("span");
-      tooltip.textContent = place.name;
-      L.circleMarker(place.point, {
-        radius: 7, color: '#164d3d', weight: 3, fillColor: '#fff', fillOpacity: 1
-      }).bindTooltip(tooltip).addTo(map);
+      endpoint(place).addTo(map);
     }
     bounds = L.latLngBounds(trip.routes.flatMap(route => route.points));
   }
@@ -44,8 +58,7 @@ export function mountCampusMap(container, onTileError, trip) {
     if(!map.getBounds().contains(p)) map.panTo(p);
   },dispose() {
     observer.disconnect();
-    tiles.off('tileerror');
-    tiles.off('loading');
+    stopStreets();
     map.remove();
   }};
 }
